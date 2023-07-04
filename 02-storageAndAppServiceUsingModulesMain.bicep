@@ -1,5 +1,9 @@
 param location string = resourceGroup().location
+
+@minLength(5)
+@maxLength(24)
 param storageAccountName  string = 'taratoylaun${uniqueString(resourceGroup().id)}'
+
 param appServiceAppName  string = 'taratoylaun${uniqueString(resourceGroup().id)}'
 
 @allowed([
