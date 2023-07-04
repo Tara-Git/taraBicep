@@ -35,9 +35,27 @@ az configure --defaults group=[Your resource group name]
 
 # Deploy the Bicep template to Azure
 az deployment group create --template-file main.bicep
+# OR
 az deployment group create \
   --template-file main.bicep \
   --parameters environmentType=nonprod
+# OR
+az deployment group create \
+  --template-file main.bicep \
+  --parameters main.parameters.json \
+               appServicePlanInstanceCount=5
 
 # Verify the deployment 
 az deployment group list --output table
+
+# Create Keyvaut and userName and password
+keyVaultName='YOUR-KEY-VAULT-NAME'
+read -s -p "Enter the login name: " login
+read -s -p "Enter the password: " password
+
+az keyvault create --name $keyVaultName --location westus3 --enabled-for-template-deployment true
+az keyvault secret set --vault-name $keyVaultName --name "sqlServerAdministratorLogin" --value $login --output none
+az keyvault secret set --vault-name $keyVaultName --name "sqlServerAdministratorPassword" --value $password --output none
+
+# Retrieve the key vault's resource ID
+az keyvault show --name $keyVaultName --query id --output tsv
