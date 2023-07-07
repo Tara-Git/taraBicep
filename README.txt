@@ -67,3 +67,17 @@ az keyvault secret set --vault-name $keyVaultName --name "sqlServerAdministrator
 
 # Retrieve the key vault's resource ID
 az keyvault show --name $keyVaultName --query id --output tsv
+
+# Retrieve the Storage access key
+az storage account list --resource-group <resource-group-name> --query [].name --output tsv
+az storage account keys list --account-name <storage-account-name> --resource-group <resource-group-name> --output table
+
+# Create a Log Analytics workspace
+az monitor log-analytics workspace create \
+  --workspace-name <Name> \
+  --location <location>
+
+  # Create a storage account
+  az storage account create \
+  --name {storageaccountname} \
+  --location <location>
