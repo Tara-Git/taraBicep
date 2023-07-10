@@ -52,6 +52,12 @@ az deployment group create \
   --template-file main.bicep \
   --parameters main.parameters.json \
                appServicePlanInstanceCount=5
+# OR
+az deployment group create \
+  --mode Complete \
+  --name ExampleDeployment \
+  --resource-group ExampleResourceGroup \
+  --template-file storage.json
 
 # Verify the deployment 
 az deployment group list --output table
@@ -77,7 +83,12 @@ az monitor log-analytics workspace create \
   --workspace-name <Name> \
   --location <location>
 
-  # Create a storage account
-  az storage account create \
-  --name {storageaccountname} \
-  --location <location>
+# Create a storage account
+az storage account create \
+--name {storageaccountname} \
+--location <location>
+
+# check the role assignment ID
+az role assignment list --assignee <user-principal-name> --query [*].id -o tsv
+admin@MngEnvMCAP296260.onmicrosoft.com
+
