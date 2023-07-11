@@ -57,7 +57,8 @@ az deployment group create \
   --mode Complete \
   --name ExampleDeployment \
   --resource-group ExampleResourceGroup \
-  --template-file storage.json
+  --template-file storage.json \
+  --result-format FullResourcePayloads
 
 # Verify the deployment 
 az deployment group list --output table
