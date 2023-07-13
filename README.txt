@@ -60,6 +60,23 @@ az deployment group create \
   --template-file storage.json \
   --result-format FullResourcePayloads
 
+# Deploy in differenet Scops
+az deployment group create
+  az deployment group create --resource-group ProjectTeddybear 
+az deployment sub create
+az deployment mg create
+az deployment tenant create
+# deployment to subscription example
+  templateFile="main.bicep"
+  today=$(date +"%d-%b-%Y")
+  deploymentName="sub-scope-"$today
+
+  az deployment sub create \
+      --name $deploymentName \
+      --location westus \
+      --template-file $templateFile
+
+
 # Verify the deployment 
 az deployment group list --output table
 
@@ -93,3 +110,8 @@ az storage account create \
 az role assignment list --assignee <user-principal-name> --query [*].id -o tsv
 admin@MngEnvMCAP296260.onmicrosoft.com
 
+# Create Bicep from json
+az bicep decompile --file template.json
+
+#  Clean up the resources
+az group delete --resource-group <resource-group Name> --yes --no-wait

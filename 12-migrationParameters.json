@@ -1,0 +1,36 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualMachines_ToyTruckServer_name": {
+            "value": null
+        },
+        "disks_ToyTruckServer_OsDisk_1_ab342262da3d4a619526793a286b3aa2_externalid": {
+            "value": null
+        },
+        "networkInterfaces_toytruckserver124_externalid": {
+            "value": null
+        },
+        "networkInterfaces_toytruckserver124_name": {
+            "value": null
+        },
+        "publicIPAddresses_ToyTruckServer_ip_externalid": {
+            "value": null
+        },
+        "virtualNetworks_ToyTruckServer_vnet_externalid": {
+            "value": null
+        },
+        "networkSecurityGroups_ToyTruckServer_nsg_externalid": {
+            "value": null
+        },
+        "virtualNetworks_ToyTruckServer_vnet_name": {
+            "value": null
+        },
+        "networkSecurityGroups_ToyTruckServer_nsg_name": {
+            "value": null
+        },
+        "publicIPAddresses_ToyTruckServer_ip_name": {
+            "value": null
+        }
+    }
+}
