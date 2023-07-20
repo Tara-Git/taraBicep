@@ -67,9 +67,22 @@ az deployment sub create
 az deployment mg create
 az deployment tenant create
 # deployment to subscription example
+# 1 
   templateFile="main.bicep"
   today=$(date +"%d-%b-%Y")
   deploymentName="sub-scope-"$today
+# 2
+templateFile="13-deploySubScopeMain.bicep"
+today=$(date +"%d-%b-%Y")
+deploymentName="sub-scope-"$today
+virtualNetworkName="rnd-vnet-001"
+virtualNetworkAddressPrefix="10.0.0.0/24"
+az deployment sub create \
+    --name $deploymentName \
+    --location westus \
+    --template-file $templateFile \
+    --parameters virtualNetworkName=$virtualNetworkName \
+                 virtualNetworkAddressPrefix=$virtualNetworkAddressPrefix
 
   az deployment sub create \
       --name $deploymentName \
@@ -115,3 +128,45 @@ az bicep decompile --file template.json
 
 #  Clean up the resources
 az group delete --resource-group <resource-group Name> --yes --no-wait
+subscriptionId=$(az account show --query 'id' --output tsv)
+az policy assignment delete --name 'DenyFandGSeriesVMs' --scope "/subscriptions/$subscriptionId"
+az policy definition delete --name 'DenyFandGSeriesVMs' --subscription $subscriptionId
+az group delete --name ToyNetworking
+
+# create a Management Group
+az account management-group create \
+  --name SecretRND \
+  --display-name "Secret R&D Projects" --parent-id
+
+  #Review the logs
+  az deployment-scripts show-log --resource-group $resourceGroupName --name CopyConfigScript
+
+# List the content of the blob coontainer
+storageAccountName=$(az deployment group show --resource-group $resourceGroupName --name $deploymentName --query 'properties.outputs.storageAccountName.value' --output tsv)
+az storage blob list --account-name $storageAccountName --container-name config --query '[].name'
+
+# Create a template spec
+az ts create \
+  --name StorageWithoutSAS \
+  --location westus \
+  --display-name "Storage account with SAS disabled" \
+  --description "This template spec creates a storage account, which is preconfigured to disable SAS authentication." \
+  --version 1.0 \
+  --template-file main.bicep
+
+  # deploy a template spec to a resource group
+    az deployment group create \
+    --template-spec "/subscriptions/f0750bbe-ea75-4ae5-b24d-a92ca601da2c/resourceGroups/SharedTemplates/providers/Microsoft.Resources/templateSpecs/StorageWithoutSAS"
+    az deployment group create
+    az deployment sub create
+    az deployment mg create
+    az deployment tenant create
+
+# Publish the template as a template spec
+  az ts create \
+  --name ToyCosmosDBAccount \
+  --location westus \
+  --display-name "Cosmos DB account" \
+  --description "This template spec creates a Cosmos DB account that meets our company's requirements." \
+  --version 1.0 \
+  --template-file main.bicep

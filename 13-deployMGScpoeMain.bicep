@@ -1,11 +1,7 @@
-targetScope = 'subscription'
-
-param virtualNetworkName string
-param virtualNetworkAddressPrefix string
+targetScope = 'managementGroup'
 
 var policyDefinitionName = 'DenyFandGSeriesVMs'
 var policyAssignmentName = 'DenyFandGSeriesVMs'
-var resourceGroupName = 'ToyNetworking'
 
 resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2020-03-01' = {
   name: policyDefinitionName
@@ -48,16 +44,16 @@ resource policyAssignment 'Microsoft.Authorization/policyAssignments@2020-03-01'
   }
 }
 
-resource resourceGroup 'Microsoft.Resources/resourceGroups@2021-01-01' = {
-  name: resourceGroupName
-  location: deployment().location
+
+
+/*
+---- This will be assign role to the subscription (which is written in the module), even though here we are specifying the Management Group
+
+targetScope = 'managementGroup'
+
+module myModule 'modules/13-deployMGScopeModule.bicep' = {
+  scope: subscription('f0750bbe-ea75-4ae5-b24d-a92ca601da2c')
+  name: 'my-module'
 }
 
-module virtualNetwork 'modules/13-deploySubScopeVirtualNetwork.bicep' = {
-  scope: resourceGroup
-  name: 'virtualNetwork'
-  params: {
-    virtualNetworkName: virtualNetworkName
-    virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
-  }
-}
+*/
