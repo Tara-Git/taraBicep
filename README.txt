@@ -170,3 +170,44 @@ az ts create \
   --description "This template spec creates a Cosmos DB account that meets our company's requirements." \
   --version 1.0 \
   --template-file main.bicep
+
+# Get the template spec version's resource ID 
+templateSpecVersionResourceId=$(az ts show \
+  --name ToyCosmosDBAccount \
+  --version 1.0 \
+  --query id \
+  --output tsv)
+
+# create a service principal without any Azure role assignments
+az ad sp create-for-rbac --name MyPipeline
+
+# reset a key for a service principal
+az ad sp credential reset --name "b585b740-942d-44e9-9126-f1181c95d497"
+
+# sign in by using the service principal's credentials.
+az login --service-principal \
+  --username APPLICATION_ID \
+  --password SERVICE_PRINCIPAL_KEY \
+  --tenant TENANT_ID \
+  --allow-no-subscriptions
+
+
+# create a role assignment for a service principal
+az role assignment create \
+  --assignee b585b740-942d-44e9-9126-f1181c95d497 \
+  --role Contributor \
+  --scope "/subscriptions/f0750bbe-ea75-4ae5-b24d-a92ca601da2c/resourceGroups/ToyWebsite" \
+  --description "The deployment pipeline for the company's website needs to be able to create resources within the resource group."
+
+# create a role assignment at the same time that you create a service principal
+az ad sp create-for-rbac \
+  --name MyPipeline \
+  --role Contributor \
+  --scopes "/subscriptions/f0750bbe-ea75-4ae5-b24d-a92ca601da2c/resourceGroups/ToyWebsite"
+
+# Create Role Assignment
+az role assignment create \
+  --assignee APPLICATION_ID \
+  --role Contributor \
+  --scope RESOURCE_GROUP_ID \
+  --description "The deployment pipeline for the company's website needs to be able to create resources within the resource group."
