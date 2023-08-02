@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=./deploy.yml
 trigger:
   batch: true
   branches:
@@ -9,9 +10,12 @@ pool:
 
 stages:
 
-# Lint the Bicep file.
-- stage: Lint
-  jobs: 
+- stage: Build
+  jobs:
+  # Build the Visual Studio solution.
+  - template: pipeline-templates/build.yml
+
+  # Lint the Bicep file.
   - template: pipeline-templates/lint.yml
 
 # Deploy to the test environment.

@@ -1,0 +1,41 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/BicepPipeline/toy-website/toy-website-end-to-end/src/ToyCompany/ToyCompany.Website/ToyCompany.Website.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "publish",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "${workspaceFolder}/BicepPipeline/toy-website/toy-website-end-to-end/src/ToyCompany/ToyCompany.Website/ToyCompany.Website.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "watch",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "watch",
+                "run",
+                "--project",
+                "${workspaceFolder}/BicepPipeline/toy-website/toy-website-end-to-end/src/ToyCompany/ToyCompany.Website/ToyCompany.Website.csproj"
+            ],
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}

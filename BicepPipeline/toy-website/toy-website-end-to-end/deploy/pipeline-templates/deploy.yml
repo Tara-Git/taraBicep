@@ -30,6 +30,8 @@ stages:
               -environmentType $(EnvironmentType)
               -reviewApiUrl $(ReviewApiUrl)
               -reviewApiKey $(ReviewApiKey)
+              -sqlServerAdministratorLogin $(SqlServerAdministratorLogin)
+              -sqlServerAdministratorLoginPassword $(SqlServerAdministratorLoginPassword)
 
 - ${{ if eq(parameters.environmentType, 'Production') }}:
   - stage: Preview_${{parameters.environmentType}}
@@ -53,13 +55,17 @@ stages:
                 --template-file deploy/main.bicep \
                 --parameters environmentType=$(EnvironmentType) \
                              reviewApiUrl=$(ReviewApiUrl) \
-                             reviewApiKey=$(ReviewApiKey)
+                             reviewApiKey=$(ReviewApiKey) \
+                             sqlServerAdministratorLogin=$(SqlServerAdministratorLogin) \
+                             sqlServerAdministratorLoginPassword=$(SqlServerAdministratorLoginPassword)
 
 - stage: Deploy_${{parameters.environmentType}}
   displayName: Deploy (${{parameters.environmentType}} Environment)
   jobs:
   - deployment: DeployWebsite
     displayName: Deploy website
+    pool:
+      vmImage: windows-latest
     variables:
     - group: ToyWebsite${{parameters.environmentType}}
     environment: ${{parameters.environmentType}}
@@ -82,14 +88,73 @@ stages:
                   -environmentType $(EnvironmentType)
                   -reviewApiUrl $(ReviewApiUrl)
                   -reviewApiKey $(ReviewApiKey)
+                  -sqlServerAdministratorLogin $(SqlServerAdministratorLogin)
+                  -sqlServerAdministratorLoginPassword $(SqlServerAdministratorLoginPassword)
                 deploymentOutputs: deploymentOutputs
 
             - bash: |
+                echo "##vso[task.setvariable variable=appServiceAppName]$(echo $DEPLOYMENT_OUTPUTS | jq -r '.appServiceAppName.value')"
                 echo "##vso[task.setvariable variable=appServiceAppHostName;isOutput=true]$(echo $DEPLOYMENT_OUTPUTS | jq -r '.appServiceAppHostName.value')"
+                echo "##vso[task.setvariable variable=storageAccountName]$(echo $DEPLOYMENT_OUTPUTS | jq -r '.storageAccountName.value')"
+                echo "##vso[task.setvariable variable=storageAccountImagesBlobContainerName]$(echo $DEPLOYMENT_OUTPUTS | jq -r '.storageAccountImagesBlobContainerName.value')"
+                echo "##vso[task.setvariable variable=sqlServerFullyQualifiedDomainName]$(echo $DEPLOYMENT_OUTPUTS | jq -r '.sqlServerFullyQualifiedDomainName.value')"
+                echo "##vso[task.setvariable variable=sqlDatabaseName]$(echo $DEPLOYMENT_OUTPUTS | jq -r '.sqlDatabaseName.value')"
               name: SaveDeploymentOutputs
               displayName: Save deployment outputs into variables
               env:
                 DEPLOYMENT_OUTPUTS: $(deploymentOutputs)
+
+            - task: AzureRmWebAppDeployment@4
+              name: DeployWebsiteApp
+              displayName: Deploy website
+              inputs:
+                appType: webApp
+                ConnectionType: AzureRM
+                azureSubscription: ToyWebsite${{parameters.environmentType}}
+                ResourceGroupName: $(ResourceGroupName)
+                WebAppName: $(appServiceAppName)
+                Package: '$(Pipeline.Workspace)/website/publish.zip'
+
+            - task: SqlAzureDacpacDeployment@1
+              name: DeploySqlDatabaseDacpac
+              displayName: Deploy DACPAC to database
+              inputs:
+                ConnectedServiceNameARM: ToyWebsite${{parameters.environmentType}}
+                authenticationType: 'server'
+                serverName: $(sqlServerFullyQualifiedDomainName)
+                databaseName: $(sqlDatabaseName)
+                sqlUsername: $(SqlServerAdministratorLogin)
+                sqlPassword: $(SqlServerAdministratorLoginPassword)
+                deployType: 'DacpacTask'
+                deploymentAction: 'Publish'
+                dacpacFile: '$(Pipeline.Workspace)/database/ToyCompany.Database.dacpac'
+
+            - ${{ if ne(parameters.environmentType, 'Production') }}:
+              - task: SqlAzureDacpacDeployment@1
+                name: AddTestDataToDatabase
+                displayName: Add test data to database
+                inputs:
+                  ConnectedServiceNameARM: ToyWebsite${{parameters.environmentType}}
+                  authenticationType: 'server'
+                  serverName: $(sqlServerFullyQualifiedDomainName)
+                  databaseName: $(sqlDatabaseName)
+                  sqlUsername: $(SqlServerAdministratorLogin)
+                  sqlPassword: $(SqlServerAdministratorLoginPassword)
+                  deployType: 'sqlTask'
+                  sqlFile: 'deploy/sample-data/Toys.sql'
+
+              - task: AzureCLI@2
+                name: UploadSampleImages
+                displayName: Upload sample images
+                inputs:
+                  azureSubscription: ToyWebsite${{parameters.environmentType}}
+                  scriptType: 'bash'
+                  scriptLocation: 'inlineScript'
+                  inlineScript: |
+                    az storage blob upload-batch \
+                      --account-name $(storageAccountName) \
+                      --destination $(storageAccountImagesBlobContainerName) \
+                      --source 'deploy/sample-data/toyimages'
 
 - stage: SmokeTest_${{parameters.environmentType}}
   displayName: Smoke Test (${{parameters.environmentType}} Environment)
