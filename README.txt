@@ -31,7 +31,7 @@ az account set --subscription $s
 
 
 # -------------------------------------
-# Set the default Resource group
+# Set the default Resource group (PS command)
 Set-AzDefault -ResourceGroupName [sandbox resource group name]
 
 # -------------------------------------
