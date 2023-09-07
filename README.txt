@@ -29,6 +29,11 @@ az account show
 s=$(az account show --subscription {your subscription ID} --query id --output tsv)
 az account set --subscription $s
 
+
+# -------------------------------------
+# Set the default Resource group
+Set-AzDefault -ResourceGroupName [sandbox resource group name]
+
 # -------------------------------------
 # Get the Concierge Subscription IDs
 az account list \
