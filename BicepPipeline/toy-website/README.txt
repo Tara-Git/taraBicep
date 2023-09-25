@@ -7,7 +7,8 @@ az group create --name ToyWebsite --location eastus  # make sure that you are sa
 # Create a Service Principal
 az ad sp create-for-rbac --name ToyWebsitePipeline
 
-# Check the Service Principalaz login --service-principal \
+# Check the Service Principal
+az login --service-principal \
   --username APPLICATION_ID \
   --password SERVICE_PRINCIPAL_KEY \
   --tenant TENANT_ID \
