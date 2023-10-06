@@ -57,3 +57,15 @@ module myModule 'modules/13-deployMGScopeModule.bicep' = {
 }
 
 */
+
+/*
+# Deploy the template to Azure but ina subscription therefore we have 'az deployment sub create' instead of 'az deployment group create'.
+templateFile="main.bicep"
+today=$(date +"%d-%b-%Y")
+deploymentName="sub-scope-"$today
+
+az deployment sub create \
+    --name $deploymentName \
+    --location westus \
+    --template-file $templateFile
+*/
