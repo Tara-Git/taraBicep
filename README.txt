@@ -216,3 +216,20 @@ az role assignment create \
   --role Contributor \
   --scope RESOURCE_GROUP_ID \
   --description "The deployment pipeline for the company's website needs to be able to create resources within the resource group."
+
+
+  # Convert and existing Json template to Bicep
+  az bicep decompile 'path/to/file.json'
+  
+  # What if command and the deployment modes 
+  az deployment group what-if \
+  --mode Complete \
+  --resource-group ToyTruck \
+  --template-file main.bicep \
+  --parameters main.parameters.production.json
+
+  # Create a deployment in complete mode and ask for the approval after what-if result
+  az deployment group create \
+  --mode Complete \
+  --confirm-with-what-if \
+  --template-file main.bicep
