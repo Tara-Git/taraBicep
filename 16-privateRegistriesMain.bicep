@@ -27,7 +27,16 @@ module cdn 'br/ToyCompanyRegistry:16-privateRegistriesCdn:v1' = {
   }
 }
 
+/*
+In case we want to use the module and not using the Alias,  we need to specify the module from the registry like this:
 
+module myModule 'br:myregistry.azurecr.io/modulepath/modulename:moduleversion' = {
+  name: 'my-module'
+  params: {
+    moduleParameter1: 'value'
+  }
+}
+*/
 
 /*
 Deploy tge main to azure:
