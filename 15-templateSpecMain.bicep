@@ -29,3 +29,28 @@ resource cosmosDBAccount 'Microsoft.DocumentDB/databaseAccounts@2021-04-15' = {
     }
   }
 }
+
+
+
+
+/*
+for deploying the resources we hav e2 steps: 
+
+01. Publish the template as a template spec:
+az ts create \
+  --name ToyCosmosDBAccount \
+  --location westus \
+  --display-name "Cosmos DB account" \
+  --description "This template spec creates a Cosmos DB account that meets our company's requirements." \
+  --version 1.0 \
+  --template-file main.bicep
+
+
+02. Deploy the template spec
+templateSpecVersionResourceId=$(az ts show \
+  --name ToyCosmosDBAccount \
+  --version 1.0 \
+  --query id \
+  --output tsv)
+az deployment group create --template-spec $templateSpecVersionResourceId
+*/
